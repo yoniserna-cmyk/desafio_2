@@ -1,215 +1,198 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#include <cstdlib>
-#include <ctime>
-#include <iostream>
+#include <iostream> //"C:\\Users\\Yudy2\\Documents\\desafio_2\\selecciones_clasificadas_mundial.csv"
 #include <fstream>
 #include <string>
 #include <sstream>
-#include <algorithm> // necesario para max
 
 using namespace std;
 
-class equipo {
-private:
+struct nodo{
+    string ranking;
     string pais;
-    int rankingfifa;
+    string directortecnico;
+    string federacion;
     string confederacion;
-    string tecnico;
-    int golesafavor;
-    int golesencontra;
-    int ganados;
-    int empatados;
-    int perdidos;
-
-public:
-    equipo() {
-        pais = "";
-        rankingfifa = 0;
-        confederacion = "";
-        tecnico = "";
-        golesafavor = 0;
-        golesencontra = 0;
-        ganados = 0;
-        empatados = 0;
-        perdidos = 0;
-    }
-
-    void cargarDatos(int ranking, const string& p, const string& dt, const string& conf,
-                     int gf, int gc, int g, int e, int per) {
-        rankingfifa = ranking;
-        pais = p;
-        tecnico = dt;
-        confederacion = conf;
-        golesafavor = gf;
-        golesencontra = gc;
-        ganados = g;
-        empatados = e;
-        perdidos = per;
-    }
-
-    string getPais() const { return pais; }
-    string getTecnico() const { return tecnico; }
-    int getRankingFifa() const { return rankingfifa; }
+    string golesfavor;
+    string golescontra;
+    string partidosganados;
+    string partidosperdidos;
+    string partidosempatados;
+    nodo* siguiente;
 };
 
-class jugador {
+int leercsv(string csv){
+
+    ifstream file(csv);
+    string line;
+
+    nodo* inicio = NULL;
+    nodo* ultimo = NULL;
+
+    getline(file, line);
+    getline(file, line);
+
+    while(getline(file, line)){
+        stringstream ss(line);
+        string r, p, dt,f,c,gf, gc, pg, pp, pe;
+
+        getline(ss, r, ';');
+        getline(ss, p, ';');
+        getline(ss, dt, ';');
+        getline(ss, f, ';');
+        getline(ss, c, ';');
+        getline(ss, gf, ';');
+        getline(ss, gc, ';');
+        getline(ss, pg, ';');
+        getline(ss, pp, ';');
+        getline(ss, pe, ';');
+        nodo* nuevo = new nodo();
+        nuevo->ranking = r;
+        nuevo->pais = p;
+        nuevo->directortecnico = dt;
+        nuevo->federacion = f;
+        nuevo->confederacion= c;
+        nuevo->golesfavor = gf;
+        nuevo->golescontra = gc;
+        nuevo->partidosganados = pg;
+        nuevo->partidosempatados = pe;
+        nuevo->partidosperdidos = pp;
+        nuevo->siguiente = NULL;
+
+        if (inicio == NULL) {
+            inicio= nuevo;
+            ultimo = nuevo;
+        } else {
+            // Si no, lo pegamos al final y movemos el puntero 'ultimo'
+            ultimo->siguiente = nuevo;
+            ultimo = nuevo;
+        }
+    }
+    file.close();
+
+    nodo* actual = inicio;
+    while (actual != NULL) {
+        cout << "Ranking: " << actual->ranking << " | Pais: " << actual->pais << endl;
+        actual = actual->siguiente; // Avanzamos al siguiente nodo
+    }
+
+    return 0;
+}
+
+
+class jugador{
 private:
     string nombre;
     string apellido;
     int numerocamiseta;
     int goles;
     int minjugados;
-    int tarjetasamarillas;
-    int tarjetasrojas;
-    int faltas;
+    int targetasamarillas;
+    int targetasrojas;
+    int faltas ;
     int partidosjugados;
-
 public:
-    void actualizarestadisticas() {}
-    void agregargol() {}
-    void agregartarjeta() {}
-    void agregarroja() {}
+
+
+    void actualizarestadisticas(){
+
+    }
+
+    void agregartargeta(){
+
+    }
+
+    void agregarroja(){
+
+    }
 };
 
-class info {
+class equipo{
 private:
-    equipo* selecciones;
-    int capacidad;
-    int cantidadActual;
+    string pais;
+    int rankingfifa;
+    string confederacion;
+    string tecnico;
+    string juadores; // puede ser una lista enlazada
+    int golesafavor;
+    int golesencontra;
+    int partidosganados;
+    int empates;
+    int perdidos;
+    int targetas;
+    int faltas;
+public:
+    void calpromediogoles(){
+
+    }
+
+    void agregarjugador(){
+
+    }
+
+    void actualizarestadisticas(){
+
+    }
+
+    void jugtitulares(){
+
+    }
+
+};
+
+
+class partido{
+private:
+    string equipo1;
+    string equipo2;
+    string fecha;
+    string hora;
+    string sede;
+    string arbitros;
+    int golesequipo1;
+    int golesequipo2;
+    int posecion;
+    string jugadorescomvocados;
 
 public:
-    info(int cap) {
-        capacidad = cap;
-        selecciones = new equipo[capacidad];
-        cantidadActual = 0;
+    void simularpartido(){
+
     }
 
-    ~info() {
-        delete[] selecciones;
+    void calculargoles(){
+
     }
 
-    void datosarchivo(string nombrearchivo) {
-        ifstream archivo(nombrearchivo);
-        if (!archivo.is_open()) {
-            cout << "No se pudo abrir el archivo" << endl;
-            return;
-        }
+    void asignareventosjugadores(){
 
-        string linea, temp;
-
-        // Función auxiliar segura para convertir a entero
-        auto convertirEntero = [](const string& texto) {
-            try {
-                if (texto.empty()) return 0;
-                return stoi(texto);
-            } catch (...) {
-                return 0;
-            }
-        };
-
-        // Saltar título y encabezado
-        getline(archivo, linea);
-        getline(archivo, linea);
-
-        while (getline(archivo, linea) && cantidadActual < capacidad) {
-
-            if (linea.empty()) continue; // evitar líneas vacías
-            if (linea.find(";") == string::npos) continue; // evitar líneas inválidas
-
-            stringstream ss(linea);
-
-            int ranking = 0, golesFavor = 0, golesContra = 0;
-            int ganados = 0, empatados = 0, perdidos = 0;
-            string pais, tecnico, federacion, confederacion;
-
-            // Ranking
-            getline(ss, temp, ';');
-            ranking = convertirEntero(temp);
-
-            // Strings
-            getline(ss, pais, ';');
-            getline(ss, tecnico, ';');
-            getline(ss, federacion, ';');    // columna extra
-            getline(ss, confederacion, ';');
-
-            // Números
-            getline(ss, temp, ';');
-            golesFavor = convertirEntero(temp);
-
-            getline(ss, temp, ';');
-            golesContra = convertirEntero(temp);
-
-            getline(ss, temp, ';');
-            ganados = convertirEntero(temp);
-
-            getline(ss, temp, ';');
-            empatados = convertirEntero(temp);
-
-            getline(ss, temp, ';');
-            perdidos = convertirEntero(temp);
-
-            selecciones[cantidadActual].cargarDatos(
-                ranking, pais, tecnico, confederacion,
-                golesFavor, golesContra, ganados, empatados, perdidos
-                );
-
-            cantidadActual++;
-        }
-
-        archivo.close();
     }
 
+    void actualizarestadisticas(){
 
-    void mostrar(int indice) {
-        if (indice >= 0 && indice < cantidadActual) {
-            cout << "Pais: " << selecciones[indice].getPais()
-            << " | DT: " << selecciones[indice].getTecnico()
-            << " | Ranking: " << selecciones[indice].getRankingFifa()
-            << endl;
-        } else {
-            cout << "Indice invalido" << endl;
-        }
-    }
-
-    void mostrarTodos() {
-        for (int i = 0; i < cantidadActual; i++) {
-            cout << "Equipo " << i << ": "
-                 << selecciones[i].getPais()
-                 << " | DT: " << selecciones[i].getTecnico()
-                 << " | Ranking: " << selecciones[i].getRankingFifa()
-                 << endl;
-        }
-    }
-
-    int getCantidadActual() {
-        return cantidadActual;
     }
 };
 
-class partido {
+class grupo{
+private:
+    string letragrupo;
+    int equipos; // son solo 4 por grupo
+    string tablapociciones;
 public:
-    void simularpartido(const equipo &e1, const equipo &e2) {
-        int fuerza1 = max(1, 100 - e1.getRankingFifa());
-        int fuerza2 = max(1, 100 - e2.getRankingFifa());
+    void agregarequipo(){
 
-        int limite1 = (fuerza1 / 20) + 1;
-        int limite2 = (fuerza2 / 20) + 1;
+    }
 
-        int goles1 = rand() % limite1;
-        int goles2 = rand() % limite2;
+    void generarpartidos(){
 
-        cout << "\nRESULTADO\n";
-        cout << e1.getPais() << " " << goles1 << " - "
-             << goles2 << " " << e2.getPais() << endl;
+    }
 
-        if (goles1 > goles2)
-            cout << "Ganador: " << e1.getPais() << endl;
-        else if (goles2 > goles1)
-            cout << "Ganador: " << e2.getPais() << endl;
-        else
-            cout << "Resultado: Empate" << endl;
+    void calculartabla(){
+
+    }
+
+    void ordenarequipos(){
+
     }
 };
 
@@ -258,31 +241,6 @@ public:
 
 };
 
-class grupo{
-private:
-    string letragrupo;
-    int equipos; // son solo 4 por grupo
-    string tablapociciones;
-public:
-    void agregarequipo(){
-
-    }
-
-    void generarpartidos(){
-
-    }
-
-    void calculartabla(){
-
-    }
-
-    void ordenarequipos(){
-
-    }
-};
-
 
 
 #endif // MAIN_H
-
-
