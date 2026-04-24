@@ -3,39 +3,86 @@
 
 #include <iostream> //"C:\\Users\\Yudy2\\Documents\\desafio_2\\selecciones_clasificadas_mundial.csv"
 #include <fstream>
-#include <string>
 #include <sstream>
+#include <string>
 
 using namespace std;
 
-struct nodo{
-    string ranking;
+class equipo{
+private:
     string pais;
-    string directortecnico;
-    string federacion;
+    int rankingfifa;
     string confederacion;
-    string golesfavor;
-    string golescontra;
-    string partidosganados;
-    string partidosperdidos;
-    string partidosempatados;
+    string tecnico;
+    string juadores; // puede ser una lista enlazada
+    int golesafavor;
+    int golesencontra;
+    int partidosganados;
+    int empates;
+    int perdidos;
+    int targetas;
+    int faltas;
+public:
+    void cargarDatos(int rank, string n, string t, string conf, int gf, int gc, int pg, int pe, int pp) {
+        rankingfifa = rank;
+        pais = n;
+        tecnico = t;
+        confederacion = conf;
+        golesafavor = gf;
+        golesencontra = gc;
+        partidosganados = pg;
+        empates = pe;
+        perdidos = pp;
+    }
+
+    string getpais(){
+        return pais;
+    }
+
+    int getrankingfifa(){
+        return rankingfifa;
+    }
+
+    string getconfederacion(){
+        return confederacion;
+    }
+
+    void calpromediogoles(){
+
+    }
+
+    void agregarjugador(){
+
+    }
+
+    void actualizarestadisticas(){
+
+    }
+
+    void jugtitulares(){
+
+    }
+
+};
+
+
+struct nodo {
+    equipo datos;
     nodo* siguiente;
 };
 
-int leercsv(string csv){
-
+nodo* leercsv(string csv) {
     ifstream file(csv);
     string line;
-
     nodo* inicio = NULL;
     nodo* ultimo = NULL;
 
     getline(file, line);
     getline(file, line);
 
-    while(getline(file, line)){
+    while(getline(file, line)) {
         stringstream ss(line);
-        string r, p, dt,f,c,gf, gc, pg, pp, pe;
+        string r, p, dt, f, c, gf, gc, pg, pe, pp;
 
         getline(ss, r, ';');
         getline(ss, p, ';');
@@ -45,39 +92,26 @@ int leercsv(string csv){
         getline(ss, gf, ';');
         getline(ss, gc, ';');
         getline(ss, pg, ';');
-        getline(ss, pp, ';');
         getline(ss, pe, ';');
+        getline(ss, pp, ';');
+
         nodo* nuevo = new nodo();
-        nuevo->ranking = r;
-        nuevo->pais = p;
-        nuevo->directortecnico = dt;
-        nuevo->federacion = f;
-        nuevo->confederacion= c;
-        nuevo->golesfavor = gf;
-        nuevo->golescontra = gc;
-        nuevo->partidosganados = pg;
-        nuevo->partidosempatados = pe;
-        nuevo->partidosperdidos = pp;
+
+        nuevo->datos.cargarDatos(stoi(r), p, dt, c, stoi(gf), stoi(gc), stoi(pg), stoi(pe), stoi(pp));
+
         nuevo->siguiente = NULL;
 
         if (inicio == NULL) {
-            inicio= nuevo;
+            inicio = nuevo;
             ultimo = nuevo;
         } else {
-            // Si no, lo pegamos al final y movemos el puntero 'ultimo'
             ultimo->siguiente = nuevo;
             ultimo = nuevo;
         }
+
     }
     file.close();
-
-    nodo* actual = inicio;
-    while (actual != NULL) {
-        cout << "Ranking: " << actual->ranking << " | Pais: " << actual->pais << endl;
-        actual = actual->siguiente; // Avanzamos al siguiente nodo
-    }
-
-    return 0;
+    return inicio;
 }
 
 
@@ -108,38 +142,6 @@ public:
     }
 };
 
-class equipo{
-private:
-    string pais;
-    int rankingfifa;
-    string confederacion;
-    string tecnico;
-    string juadores; // puede ser una lista enlazada
-    int golesafavor;
-    int golesencontra;
-    int partidosganados;
-    int empates;
-    int perdidos;
-    int targetas;
-    int faltas;
-public:
-    void calpromediogoles(){
-
-    }
-
-    void agregarjugador(){
-
-    }
-
-    void actualizarestadisticas(){
-
-    }
-
-    void jugtitulares(){
-
-    }
-
-};
 
 
 class partido{
@@ -156,11 +158,26 @@ private:
     string jugadorescomvocados;
 
 public:
-    void simularpartido(){
+    void simularpartido(equipo &e1, equipo &e2){
+        int r1 = e1.getrankingfifa();
+        int r2 = e2.getrankingfifa();
 
-    }
+        int fuerza1 = 100 - r1;
+        int fuerza2 = 100 - r2;
+        int goles1 = 0;
+        int goles2 = 0;
 
-    void calculargoles(){
+        for(int i = 0; i < 5; i++){
+            if((rand()%100) < (fuerza1 / 2)) goles1++;
+            if((rand()%100) < (fuerza2 / 2)) goles2++;
+        }
+        cout << " RESULTADO FINAL " << endl;
+        cout << e1.getpais() << " [" << r1 << "] " << goles1 << " - "
+             << goles2 << " [" << r2 << "] " << e2.getpais() << endl;
+
+        if (goles1 > goles2) cout << "Ganador: " << e1.getpais() << endl;
+        else if (goles2 > goles1) cout << "Ganador: " << e2.getpais() << endl;
+        else cout << " Empate " << endl;
 
     }
 
@@ -179,20 +196,47 @@ private:
     int equipos; // son solo 4 por grupo
     string tablapociciones;
 public:
-    void agregarequipo(){
+    void creargrupos(nodo* inicio, int cantequipos){
+       // ofstream archivo;
+        //archivo.open("grupos.txt", ios::out);
+        bool* usados = new bool[cantequipos];
 
+        for(int i =0; i < cantequipos; i++) usados[i] = false;
+
+        for(int i = 0; i < 12; i++){
+            cout << "GRUPO " << char('A' + i) << endl;
+
+            equipo* e1 = ordenarconfederaciones(inicio, "UEFA", usados);
+            cout << "1." << e1->getpais() << "UEFA" << endl;
+
+            equipo* e2 = ordenarconfederaciones(inicio, "CONMEBOL", usados);
+            cout << "2." << e2->getpais() << "CONMEBOL" << endl;
+
+            equipo* e3 = ordenarconfederaciones(inicio, "AFC", usados);
+            cout << "3." << e3->getpais() << "AFC" << endl;
+
+            equipo* e4 = ordenarconfederaciones(inicio, "Concacaf", usados);
+            cout << "4." << e4->getpais() << "Concacaf" << endl;
+        }
+        delete[] usados;
+
+        //archivo.close();
     }
 
-    void generarpartidos(){
+    equipo* ordenarconfederaciones(nodo* inicio, string confbuscada, bool usados[]){
+        nodo* actual = inicio;
+        int indice = 0;
 
-    }
+        while(actual != NULL){
+            if(actual->datos.getconfederacion() == confbuscada && !usados[indice]){
+                usados[indice] =true;
+                return &(actual->datos);
+            }
+            actual = actual->siguiente;
+            indice++;
 
-    void calculartabla(){
-
-    }
-
-    void ordenarequipos(){
-
+        }
+        return NULL;
     }
 };
 
@@ -240,7 +284,5 @@ public:
     }
 
 };
-
-
 
 #endif // MAIN_H
