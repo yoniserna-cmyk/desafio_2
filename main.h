@@ -192,52 +192,43 @@ public:
 
 class grupo{
 private:
-    string letragrupo;
-    int equipos; // son solo 4 por grupo
-    string tablapociciones;
+    char letragrupo;
+    equipo* integrantes[4]; // son solo 4 por grupo
+    int cantidadactual = 0;;
 public:
-    void creargrupos(nodo* inicio, int cantequipos){
+
+    grupo(char letra){
+        letragrupo = letra;
+        cantidadactual = 0;
+    }
        // ofstream archivo;
         //archivo.open("grupos.txt", ios::out);
-        bool* usados = new bool[cantequipos];
-
-        for(int i =0; i < cantequipos; i++) usados[i] = false;
-
-        for(int i = 0; i < 12; i++){
-            cout << "GRUPO " << char('A' + i) << endl;
-
-            equipo* e1 = ordenarconfederaciones(inicio, "UEFA", usados);
-            cout << "1." << e1->getpais() << "UEFA" << endl;
-
-            equipo* e2 = ordenarconfederaciones(inicio, "CONMEBOL", usados);
-            cout << "2." << e2->getpais() << "CONMEBOL" << endl;
-
-            equipo* e3 = ordenarconfederaciones(inicio, "AFC", usados);
-            cout << "3." << e3->getpais() << "AFC" << endl;
-
-            equipo* e4 = ordenarconfederaciones(inicio, "Concacaf", usados);
-            cout << "4." << e4->getpais() << "Concacaf" << endl;
-        }
-        delete[] usados;
-
         //archivo.close();
-    }
-
-    equipo* ordenarconfederaciones(nodo* inicio, string confbuscada, bool usados[]){
-        nodo* actual = inicio;
-        int indice = 0;
-
-        while(actual != NULL){
-            if(actual->datos.getconfederacion() == confbuscada && !usados[indice]){
-                usados[indice] =true;
-                return &(actual->datos);
-            }
-            actual = actual->siguiente;
-            indice++;
-
+    bool tieneConfederacion(string conf) {
+        for (int i = 0; i < cantidadactual; i++) {
+            if (integrantes[i]->getconfederacion() == conf) return true;
         }
-        return NULL;
+        return false;
     }
+
+    bool agregarequipo(equipo* e){
+        if(cantidadactual < 4 && !tieneConfederacion(e->getconfederacion())){
+            integrantes[cantidadactual] = e;
+            cantidadactual++;
+            return true;
+        }
+        return false;
+    }
+
+    void mostrarposiciones(){
+        cout << "GRUPO " << letragrupo  << endl;
+        cout << "pos | pais           | conf " << endl;
+        for(int i = 0; i < cantidadactual; i++){
+            cout << i + 1 << "   | " << integrantes[i]->getpais()
+            << " | " << integrantes[i]->getconfederacion() << endl;
+        }
+    }
+
 };
 
 class torneo{
@@ -247,6 +238,9 @@ private:
     string partidos;
     string calendario;
 public:
+
+
+
     void cargardatos(){
 
     }
